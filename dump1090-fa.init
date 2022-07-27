@@ -1,0 +1,79 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          dump1090-fa
+# Required-Start:    $network $remote_fs $syslog $time
+# Required-Stop:     $network $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: RTL SDR Receiver/Decoder.
+# Description:       ADS-B receiver running dump1090
+#
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+DAEMON=/usr/bin/dump1090-fa
+STARTFILE=/usr/share/dump1090-fa/start-dump1090-fa
+RUNDIR=/var/run/dump1090-fa
+WRITEJSON=" --write-json $RUNDIR "
+PIDFILE=/var/run/dump1090-fa.pid
+LOGFILE=/var/log/dump1090-fa.log
+RUNAS=dump1090
+
+test -x $DAEMON || exit 5
+
+start() {
+    log_daemon_msg "Starting adsb-decoder" "dump1090-fa"
+
+    # ensure the logfile exists with the right ownership
+    # so dump1090-fa can modify it
+    touch $LOGFILE
+    chown $RUNAS $LOGFILE
+    chmod u+rw $LOGFILE
+
+    # create $RUNDIR for json files aircraft.json and history.json
+    mkdir -p $RUNDIR
+    chown $RUNAS $RUNDIR
+    chmod 0755 $RUNDIR
+
+    /sbin/start-stop-daemon --start --output $LOGFILE --make-pidfile --pidfile $PIDFILE --oknodo --background --user $RUNAS --chuid $RUNAS --exec $STARTFILE  -- $WRITEJSON  
+    status=$?
+    log_end_msg $status
+    return
+}
+
+stop() {
+    log_daemon_msg "Stopping decoder" "dump1090-fa"
+    /sbin/start-stop-daemon --stop --quiet --oknodo --user $RUNAS --pidfile $PIDFILE --exec $DAEMON --retry 5  
+    log_end_msg $?
+    rm -f $PIDFILE
+    return
+}
+
+
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        stop && sleep 2 && start
+        ;;
+    status)
+        status_of_proc $DAEMON "decoder dump1090-fa "
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 2
+        ;;
+esac
+
+
+
+
+
+
