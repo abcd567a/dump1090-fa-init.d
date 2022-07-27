@@ -11,9 +11,11 @@ sudo wget -O /etc/init.d/dump1090-fa https://github.com/abcd567a/dump1090-fa-ini
 ### STEP 2 - Initialize for automatic start at boot </br> 
 ```
 sudo chmod +x /etc/init.d/dump1090-fa 
-
+```
+```
 sudo update-rc.d dump1090-fa defaults 
-
+```
+```
 sudo /etc/init.d/dump1090-fa start 
 
 ```
@@ -24,9 +26,11 @@ sudo /etc/init.d/dump1090-fa start
 
 ```
 sudo service dump1090-fa start  
-
+```
+```
 sudo service dump1090-fa stop  
-
+```
+```
 sudo service dump1090-fa restart  
 
 ```
@@ -34,7 +38,8 @@ sudo service dump1090-fa restart
 ### USAGE - Status & Log </br>
 ```
 sudo service dump1090-fa status 
-
+```
+```
 cat /var/log/dump1090-fa.log  
 
 ```
